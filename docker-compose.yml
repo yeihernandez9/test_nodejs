@@ -1,0 +1,85 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=password
+    container_name: postgres
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+  
+  test-order:
+    build:
+      context: ./test-order
+      dockerfile: Dockerfile
+    container_name: test-order
+    environment:
+      - DATABASE_HOST=localhost
+      - DATABASE_PORT=5432
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=test_order
+      - DATABASE_SCHEMA=public
+      - DATABASE_SYNCHRONIZE=false
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+
+  test-crm:
+    build:
+      context: ./test-crm
+      dockerfile: Dockerfile
+    container_name: test-crm
+    environment:
+      - DATABASE_HOST=localhost
+      - DATABASE_PORT=5432
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=test_crm
+      - DATABASE_SCHEMA=public
+      - DATABASE_SYNCHRONIZE=false
+    ports:
+      - '3001:3001'
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+
+  test-erp:
+    build:
+      context: ./test-erp
+      dockerfile: Dockerfile
+    container_name: test-erp
+    environment:
+      - DATABASE_HOST=localhost
+      - DATABASE_PORT=5432
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=password
+      - DATABASE_NAME=test_erp
+      - DATABASE_SCHEMA=public
+      - DATABASE_SYNCHRONIZE=false
+    ports:
+      - '3002:3002'
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    container_name: test-pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=pgadmin4
+    ports:
+      - '5050:80'
+    depends_on:
+      - db
